@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#15324b">
+<meta name="description" content="Engineering inspection documentation and preliminary cost estimation prototype.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<title>EngiScan AI | Prototype v1.0</title>
+<style>
+:root{--navy:#15324b;--teal:#147d73;--bg:#f3f6f8;--card:#fff;--ink:#17212b;--muted:#627180;--line:#dbe3e8;--amber:#fff3d7;--red:#ffe7e7}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--navy);color:white;padding:18px 20px}header .wrap{max-width:1100px;margin:auto;display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:10px;background:var(--teal);display:grid;place-items:center;font-size:23px;font-weight:bold}
+h1{font-size:21px;margin:0}header p{margin:3px 0 0;color:#d5e4ec;font-size:12px;letter-spacing:.08em}
+main{max-width:1100px;margin:20px auto;padding:0 14px 30px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 2px 8px #19384a0a}
+h2{font-size:17px;margin:0 0 14px;color:var(--navy)}h3{font-size:14px;margin:16px 0 8px}
+label{display:block;font-size:12px;font-weight:bold;margin:10px 0 5px;color:#344654}
+input,select,textarea{width:100%;padding:10px;border:1px solid #c8d4dc;border-radius:8px;font:inherit;background:white;color:var(--ink)}
+textarea{min-height:86px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:8px;padding:10px 13px;font-weight:bold;cursor:pointer;font-size:13px}
+.primary{background:var(--teal);color:white}.secondary{background:#eaf1f4;color:var(--navy)}.danger{background:#fff0f0;color:#9b2828}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#preview{margin-top:10px;max-height:230px;max-width:100%;display:none;border-radius:8px;border:1px solid var(--line)}
+.note{font-size:12px;color:var(--muted)}.warning{background:var(--amber);padding:10px;border-radius:8px;font-size:12px;margin-top:12px}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#e8f3f1;color:#12685f;font-size:11px;font-weight:bold}
+.result{background:#f8fafb;border:1px solid var(--line);padding:12px;border-radius:9px;margin-top:12px}
+.result p{margin:6px 0}.result strong{color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{background:#f1f5f7}
+#records{display:grid;gap:8px;margin-top:10px}.record{border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+footer{text-align:center;padding:0 16px 20px;color:var(--muted);font-size:11px}
+@media(max-width:760px){main{grid-template-columns:1fr}.row{grid-template-columns:1fr 1fr}header .wrap{align-items:flex-start}}
+@media print{header,.no-print,footer,main .leftcol{display:none!important}body{background:white}main{display:block;margin:0;padding:0}.card{border:0;box-shadow:none;padding:0}#reportCard{display:block!important}h2{color:#000}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="logo">E</div><div><h1>EngiScan AI</h1><p>ENGINEERING INSPECTION ASSISTANT · PROTOTYPE v1.0</p></div></div></header>
+<main>
+<section class="leftcol">
+<div class="card">
+<h2>1. Inspection details</h2>
+<div class="row"><div><label for="project">Building / project name *</label><input id="project" placeholder="e.g. Admin Building"></div><div><label for="inspector">Inspector</label><input id="inspector" placeholder="Name / designation"></div></div>
+<div class="row"><div><label for="date">Inspection date *</label><input id="date" type="date"></div><div><label for="location">Exact location *</label><input id="location" placeholder="Room, floor, gridline"></div></div>
+<label for="category">Defect category *</label>
+<select id="category">
+<option value="Wall crack">Wall crack</option><option value="Water leakage">Water leakage</option><option value="Drainage problem">Drainage problem</option><option value="Concrete spalling / exposed rebar">Concrete spalling / exposed rebar</option><option value="Damaged floor / tiles">Damaged floor / tiles</option><option value="Roofing / ceiling defect">Roofing / ceiling defect</option><option value="Electrical / other visible defect">Electrical / other visible defect</option>
+</select>
+<div class="row"><div><label for="priority">Initial priority *</label><select id="priority"><option>For assessment</option><option>Routine</option><option>Urgent review</option></select></div><div><label for="dimensions">Measured dimensions</label><input id="dimensions" placeholder="e.g. 1.2 m long, 0.5 mm wide"></div></div>
+<label for="observation">Inspector's actual observations *</label><textarea id="observation" placeholder="Describe only what you observed, not assumptions."></textarea>
+<label for="photo">Attach defect photo (optional)</label><input id="photo" type="file" accept="image/*"><img id="preview" alt="Selected defect photo preview">
+<p class="note">Photos remain in this browser session unless you save a record. Avoid confidential or personally identifying images.</p>
+<div class="actions no-print"><button class="primary" id="generate">Generate draft assessment</button><button class="secondary" id="save">Save record</button><button class="secondary" id="clear">Clear form</button></div>
+<div id="assessment" class="result" hidden></div>
+<div class="warning"><strong>Safety note:</strong> This prototype does not diagnose structural safety. If there is sudden movement, falling concrete, exposed or buckled reinforcement, major widening cracks, or risk to occupants, restrict access as appropriate and arrange prompt assessment by a qualified engineer.</div>
+</div>
+<div class="card" style="margin-top:16px">
+<h2>2. Basic quantity & cost calculator</h2>
+<p class="note">Enter measured quantity and a verified local unit price. This is a simple arithmetic tool, not a complete BOQ.</p>
+<div class="row"><div><label for="item">Work item / material</label><input id="item" placeholder="e.g. Cementitious repair mortar"></div><div><label for="unit">Unit</label><select id="unit"><option>lot</option><option>m</option><option>m²</option><option>m³</option><option>bag</option><option>pcs</option><option>day</option></select></div></div>
+<div class="row"><div><label for="qty">Quantity</label><input id="qty" type="number" min="0" step="any" value="1"></div><div><label for="price">Unit price (₱)</label><input id="price" type="number" min="0" step="any" value="0"></div></div>
+<div class="actions no-print"><button class="primary" id="addItem">Add estimate item</button><button class="secondary" id="clearItems">Clear items</button></div>
+<div id="estimateTable"></div>
+</div>
+</section>
+<section>
+<div class="card" id="reportCard">
+<h2>3. Inspection report preview</h2>
+<p class="note">Generate a draft assessment, then print or save this page as PDF using your browser's Print function.</p>
+<div id="report"><p>No report generated yet. Complete the form and select <strong>Generate draft assessment</strong>.</p></div>
+<div class="actions no-print"><button class="primary" id="print">Print / Save PDF</button><button class="secondary" id="export">Export report as TXT</button></div>
+</div>
+<div class="card no-print" style="margin-top:16px">
+<h2>4. Saved records on this device</h2>
+<p class="note">Records use this browser's local storage. They do not sync to another device and may be lost if browser data is cleared. Photo files are not stored in v1.0.</p>
+<div class="actions"><button class="secondary" id="refreshRecords">Refresh records</button><button class="danger" id="deleteRecords">Delete all saved records</button></div>
+<div id="records"></div>
+</div>
+<div class="card" style="margin-top:16px">
+<h2>Prototype status</h2>
+<p><span class="badge">Working locally</span></p>
+<ul class="note"><li>Inspection form and draft rules: included</li><li>Local record storage: included</li><li>Quantity × unit price calculator: included</li><li>Print / text export: included</li><li>Automated AI vision analysis: not connected yet</li><li>PDF formatting and multi-user database: future improvements</li></ul>
+</div>
+</section>
+</main>
+<footer>EngiScan AI is an experimental prototype. All findings, priorities, repair methods, and estimates require competent human review.</footer>
+<script>
+const $ = id => document.getElementById(id);
+const today = new Date(); $('date').value = new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+let currentAssessment = null, estimateItems = [];
+const rules = {
+'Wall crack': {action:'Record crack pattern and location; measure length and width, check for changes over time, and inspect related structural elements. Refer for engineering assessment where cracks are significant, growing, diagonal, or associated with movement.',urgent:'If the crack is rapidly widening, accompanied by movement, or near a potentially distressed structural member, restrict access as appropriate and seek prompt engineering assessment.'},
+'Water leakage': {action:'Trace likely water source, document affected area, check plumbing/roof/drainage, and assess moisture-related deterioration before selecting a repair.',urgent:'If water is near electrical equipment or there is ceiling sagging or falling material, keep people clear and arrange prompt qualified inspection.'},
+'Drainage problem': {action:'Document ponding and flow direction; check blockage, slope, inlet/outlet levels, and discharge point. Verify levels before proposing regrading or pipe changes.',urgent:'If water is undermining foundations, entering electrical areas, or creating immediate access hazards, control access and arrange prompt assessment.'},
+'Concrete spalling / exposed rebar': {action:'Document extent and depth; inspect for rust, delamination, cracking, and possible water ingress. Repair scope must be set after assessing concrete and reinforcement condition.',urgent:'Falling concrete, visibly buckled reinforcement, or significant damage to a structural member requires restricted access as appropriate and prompt engineering review.'},
+'Damaged floor / tiles': {action:'Map damaged area, check for hollow tiles, settlement, moisture, and trip hazards; measure repair area and confirm substrate condition.',urgent:'Isolate a severe trip hazard or unstable floor area until it can be made safe.'},
+'Roofing / ceiling defect': {action:'Inspect roof covering, flashings, drainage, ceiling support, and water paths. Document moisture extent and verify safe access before inspection.',urgent:'For sagging ceilings, loose overhead materials, or unsafe roof access, keep people clear and arrange prompt inspection.'},
+'Electrical / other visible defect': {action:'Describe the visible defect and location. Refer electrical defects to a qualified electrician; do not touch exposed conductors or energized equipment.',urgent:'For exposed live conductors, sparks, smoke, or burning smell, keep clear, isolate power only if safe and authorized, and contact qualified responders.'}
+};
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function peso(n){return Number(n||0).toLocaleString('en-PH',{style:'currency',currency:'PHP',maximumFractionDigits:2});}
+$('photo').addEventListener('change',e=>{const f=e.target.files[0];if(!f){$('preview').style.display='none';return}if(!f.type.startsWith('image/'))return;const r=new FileReader();r.onload=()=>{$('preview').src=r.result;$('preview').style.display='block'};r.readAsDataURL(f);});
+function getForm(){return {project:$('project').value.trim(),inspector:$('inspector').value.trim(),date:$('date').value,location:$('location').value.trim(),category:$('category').value,priority:$('priority').value,dimensions:$('dimensions').value.trim(),observation:$('observation').value.trim()};}
+function generate(){
+ const d=getForm(); if(!d.project||!d.date||!d.location||!d.observation){alert('Please complete Project name, date, exact location, and actual observations.');return null;}
+ const rule=rules[d.category]; let priority=d.priority;
+ const photoName=$('photo').files[0]?.name || 'No photo attached';
+ currentAssessment={...d,photoName,action:rule.action,urgent:rule.urgent,createdAt:new Date().toISOString()};
+ $('assessment').hidden=false;
+ $('assessment').innerHTML=`<span class="badge">Draft only</span><p><strong>Category:</strong> ${escapeHtml(d.category)}</p><p><strong>Priority entered by inspector:</strong> ${escapeHtml(priority)}</p><p><strong>Suggested next action:</strong> ${escapeHtml(rule.action)}</p><p><strong>Safety escalation guidance:</strong> ${escapeHtml(rule.urgent)}</p><p class="note">The app has not verified the defect or determined structural safety. A qualified professional must review the evidence.</p>`;
+ renderReport(); return currentAssessment;
+}
+function renderReport(){
+ if(!currentAssessment)return;
+ const d=currentAssessment;
+ const rows=estimateItems.map(x=>`<tr><td>${escapeHtml(x.item)}</td><td>${escapeHtml(x.qty)} ${escapeHtml(x.unit)}</td><td>${peso(x.price)}</td><td>${peso(x.qty*x.price)}</td></tr>`).join('');
+ const total=estimateItems.reduce((s,x)=>s+x.qty*x.price,0);
+ $('report').innerHTML=`<h3>ENGINEERING INSPECTION — DRAFT REPORT</h3><p><strong>Project:</strong> ${escapeHtml(d.project)}<br><strong>Date:</strong> ${escapeHtml(d.date)}<br><strong>Inspector:</strong> ${escapeHtml(d.inspector||'Not specified')}<br><strong>Location:</strong> ${escapeHtml(d.location)}</p><hr><p><strong>Defect category:</strong> ${escapeHtml(d.category)}<br><strong>Initial priority:</strong> ${escapeHtml(d.priority)}<br><strong>Photo file:</strong> ${escapeHtml(d.photoName)}<br><strong>Measurements:</strong> ${escapeHtml(d.dimensions||'Not yet measured')}</p><p><strong>Observed condition:</strong><br>${escapeHtml(d.observation)}</p><p><strong>Suggested next action (unverified draft):</strong><br>${escapeHtml(d.action)}</p><p><strong>Safety guidance:</strong><br>${escapeHtml(d.urgent)}</p><h3>Preliminary estimate items</h3>${rows?`<table><thead><tr><th>Item</th><th>Quantity</th><th>Unit price</th><th>Amount</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th colspan="3">Total (entered items only)</th><th>${peso(total)}</th></tr></tfoot></table>`:'<p>No estimate items entered.</p>'}<p class="note">Limitations: Visual notes and suggested actions are not a structural diagnosis or approved repair design. Quantities and unit prices must be verified. Final recommendations require qualified review and applicable codes/standards.</p>`;
+}
+$('generate').addEventListener('click',generate);
+$('save').addEventListener('click',()=>{const d=currentAssessment||generate();if(!d)return;const all=JSON.parse(localStorage.getItem('engiscan_records')||'[]');all.unshift({...d,id:Date.now()});localStorage.setItem('engiscan_records',JSON.stringify(all.slice(0,100)));renderRecords();alert('Record saved in this browser. Photo image itself is not saved.');});
+$('clear').addEventListener('click',()=>{['project','inspector','location','dimensions','observation'].forEach(id=>$(id).value='');$('date').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);$('priority').value='For assessment';$('category').value='Wall crack';$('photo').value='';$('preview').style.display='none';$('assessment').hidden=true;currentAssessment=null;$('report').innerHTML='<p>No report generated yet.</p>';});
+$('addItem').addEventListener('click',()=>{const item=$('item').value.trim(),qty=Number($('qty').value),price=Number($('price').value);if(!item||!Number.isFinite(qty)||qty<0||!Number.isFinite(price)||price<0){alert('Enter a valid item, quantity and unit price.');return;}estimateItems.push({item,unit:$('unit').value,qty,price});renderEstimate();renderReport();});
+$('clearItems').addEventListener('click',()=>{estimateItems=[];renderEstimate();renderReport();});
+function renderEstimate(){const total=estimateItems.reduce((s,x)=>s+x.qty*x.price,0);$('estimateTable').innerHTML=estimateItems.length?`<table><thead><tr><th>Item</th><th>Qty</th><th>Amount</th><th></th></tr></thead><tbody>${estimateItems.map((x,i)=>`<tr><td>${escapeHtml(x.item)}<br><span class="note">${escapeHtml(x.qty)} ${escapeHtml(x.unit)} × ${peso(x.price)}</span></td><td>${x.qty}</td><td>${peso(x.qty*x.price)}</td><td><button class="danger" data-remove="${i}">×</button></td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2">Total</th><th colspan="2">${peso(total)}</th></tr></tfoot></table>`:'<p class="note">No estimate items yet.</p>';$('estimateTable').querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{estimateItems.splice(Number(b.dataset.remove),1);renderEstimate();renderReport();}));}
+function renderRecords(){const all=JSON.parse(localStorage.getItem('engiscan_records')||'[]');$('records').innerHTML=all.length?all.map(r=>`<div class="record"><div><strong>${escapeHtml(r.project)}</strong><br>${escapeHtml(r.date)} · ${escapeHtml(r.category)}<br><span class="note">${escapeHtml(r.location)}</span></div><button class="secondary" data-load="${r.id}">Load</button></div>`).join(''):'<p class="note">No saved records on this device.</p>';$('records').querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click',()=>{const r=all.find(x=>x.id===Number(b.dataset.load));if(!r)return;for(const k of ['project','inspector','date','location','category','priority','dimensions','observation'])$(k).value=r[k]||'';currentAssessment=r;$('assessment').hidden=false;$('assessment').innerHTML=`<span class="badge">Loaded saved draft</span><p><strong>Category:</strong> ${escapeHtml(r.category)}</p><p><strong>Suggested next action:</strong> ${escapeHtml(r.action)}</p><p class="note">Review all fields before printing or re-saving.</p>`;renderReport();window.scrollTo({top:0,behavior:'smooth'});}));}
+$('refreshRecords').addEventListener('click',renderRecords);
+$('deleteRecords').addEventListener('click',()=>{if(confirm('Delete every EngiScan record saved in this browser? This cannot be undone.')){localStorage.removeItem('engiscan_records');renderRecords();}});
+$('print').addEventListener('click',()=>{if(!currentAssessment&&!generate())return;window.print();});
+$('export').addEventListener('click',()=>{if(!currentAssessment&&!generate())return;const text=$('report').innerText;const blob=new Blob([text],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EngiScan-Inspection-Report.txt';a.click();URL.revokeObjectURL(a.href);});
+renderRecords();renderEstimate();
+</script>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('Offline cache not available:', err));
+  });
+}
+</script>
+</body>
+</html>
